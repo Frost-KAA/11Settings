@@ -1,5 +1,7 @@
 package com.example.a11settings
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -41,6 +43,7 @@ class SettingFragment : Fragment() {
 
         initThemeListener()
         initLangListener()
+        init()
 
         val b: Button = view.findViewById(R.id.nextActivity)
         b.setOnClickListener {
@@ -52,8 +55,8 @@ class SettingFragment : Fragment() {
         val themeGroup: RadioGroup? = view?.findViewById(R.id.themeGroup)
         themeGroup?.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
-                R.id.themeLight -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                R.id.themeDark -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                R.id.themeLight -> changeTheme(0)
+                R.id.themeDark -> changeTheme(1)
             }
         }
     }
@@ -62,18 +65,38 @@ class SettingFragment : Fragment() {
         val langGroup: RadioGroup? = view?.findViewById(R.id.langGroup)
         langGroup?.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
-                R.id.ru -> changeLang("ru")
-                R.id.en -> changeLang("en")
+                R.id.ru -> changeLang(0)
+                R.id.en -> changeLang(1)
             }
         }
     }
 
-    fun changeLang(lang: String){
+    private fun init(){
+        val theme_kod = (context as MainActivity).getSavedTheme()
+        val lang_kod = (context as MainActivity).getSavedLang()
+
+        if (theme_kod == 1) themeDark.isChecked = true
+        else themeLight.isChecked = true
+
+        if (lang_kod == 1)  en.isChecked = true
+        else ru.isChecked = true
+    }
+
+    fun changeLang(l_num: Int){
+        var lang: String = "ru"
+        if (l_num == 1) lang = "en"
         val locale = Locale(lang)
         Locale.setDefault(locale)
         val configuration = Configuration()
         configuration.locale = locale
         (context as MainActivity).getResources()?.updateConfiguration(configuration, getResources().getDisplayMetrics())
+        (context as MainActivity).saveLang(l_num)
+    }
+
+    fun changeTheme(theme: Int){
+        if (theme == 0) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        (context as MainActivity).saveTheme(theme)
     }
 
 
